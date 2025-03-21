@@ -18,6 +18,7 @@
     "heroku-prebuild": "npm install -g serve",
     "dev": "vite",
     "build": "vite build",
+    "postinstall": "npm run build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
