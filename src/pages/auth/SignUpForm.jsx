@@ -1,35 +1,39 @@
 import React, { useState } from "react";
-import Form from "react-bootstrap/Form";
-import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
-import Image from "react-bootstrap/Image";
-import Container from "react-bootstrap/Container";
-
 import { Link, useNavigate } from "react-router-dom";
-
 import styles from "../../styles/SignInUpForm.module.css";
 import btnStyles from "../../styles/Button.module.css";
 import appStyles from "../../App.module.css";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Image from "react-bootstrap/Image";
 import axios from "axios";
+import { useRedirect } from "../../hooks/useRedirect";
 
-function SignInForm() {
-  const [SignInData, setSignInData] = useState({
+const SignUpForm = () => {
+  useRedirect("loggedIn");
+
+  const [signUpData, setSignUpData] = useState({
     username: "",
-    password: "",
+    password1: "",
+    password2: "",
   });
-  const { username, password } = SignInData;
+  const { username, password1, password2 } = signUpData;
   const [error, setError] = useState({});
   const navigate = useNavigate();
+
   const handleChange = (e) => {
-    setSignInData({ ...SignInData, [e.target.name]: e.target.value });
+    setSignUpData({ ...signUpData, [e.target.name]: e.target.value.trim(), });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/dj-rest-auth/login/", SignInData);
-      navigate("/");
+      await axios.post("/dj-rest-auth/registration/", signUpData);
+      navigate("/signin");
     } catch (err) {
       console.error("API Error Response:", err.response?.data);
       setError(err.response?.data ?? { non_field_errors: ["Unknown error"] });
@@ -38,13 +42,13 @@ function SignInForm() {
 
   return (
     <Row className={styles.Row}>
-      <Col className="my-auto p-0 p-md-2" md={6}>
-        <Container className={`${appStyles.Content} p-4 `}>
-          <h1 className={styles.Header}>sign in</h1>
+      <Col className="my-auto py-2 p-md-2" md={6}>
+        <Container className={`${appStyles.Content} p-4`}>
+          <h1 className={styles.Header}>Sign up</h1>
           <Form onSubmit={handleSubmit}>
             {/* Username field */}
             <Form.Group controlId="username">
-              <Form.Label className="d-none">Username</Form.Label>
+              <Form.Label className="d-none" aria-label="Username">Username</Form.Label>
               <Form.Control
                 className={styles.Input}
                 type="text"
@@ -64,21 +68,42 @@ function SignInForm() {
                 </Alert>
               ))}
             {/* Password field */}
-            <Form.Group controlId="password">
-              <Form.Label className="d-none">Password</Form.Label>
+            <Form.Group controlId="password1">
+              <Form.Label>Password</Form.Label>
               <Form.Control
                 className={styles.Input}
                 type="password"
                 placeholder="Password"
-                name="password"
-                value={password}
+                name="password1"
+                value={password1}
                 onChange={handleChange}
               />
             </Form.Group>
-            {error.password &&
-              (Array.isArray(error.password)
-                ? error.password
-                : [error.password]
+            {error.password1 &&
+              (Array.isArray(error.password1)
+                ? error.password1
+                : [error.password1]
+              ).map((msg, index) => (
+                <Alert variant="warning" key={index}>
+                  {msg}
+                </Alert>
+              ))}
+            {/* Confirm password field */}
+            <Form.Group controlId="password2">
+              <Form.Label>Confirm Password</Form.Label>
+              <Form.Control
+                className={styles.Input}
+                type="password"
+                placeholder="Confirm password"
+                name="password2"
+                value={password2}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            {error.password2 &&
+              (Array.isArray(error.password2)
+                ? error.password2
+                : [error.password2]
               ).map((msg, index) => (
                 <Alert variant="warning" key={index}>
                   {msg}
@@ -89,36 +114,37 @@ function SignInForm() {
               className={`${btnStyles.Button} ${btnStyles.Wide} ${btnStyles.Bright}`}
               type="submit"
             >
-              Sign in
+              Sign up
             </Button>
             {error.non_field_errors &&
               (Array.isArray(error.non_field_errors)
                 ? error.non_field_errors
                 : [error.non_field_errors]
               ).map((msg, index) => (
-                <Alert variant="warning" key={index} className="mt-3">
+                <Alert variant="warning" key={index}>
                   {msg}
                 </Alert>
               ))}
           </Form>
         </Container>
+        {/* Link to sign in */}
         <Container className={`mt-3 ${appStyles.Content}`}>
-          <Link className={styles.Link} to="/signup">
-            Don't have an account? <span>Sign up now!</span>
+          <Link className={styles.Link} to="/signin">
+            Already have an account? <span>Sign in</span>
           </Link>
         </Container>
       </Col>
       <Col
         md={6}
-        className={`my-auto d-none d-md-block p-2 ${styles.SignInCol}`}
+        className={`my-auto d-none d-md-block p-2 ${styles.SignUpCol}`}
       >
         <Image
           className={`${appStyles.FillerImage}`}
-          src={"https://codeinstitute.s3.amazonaws.com/AdvancedReact/hero.jpg"}
+          src={"https://codeinstitute.s3.amazonaws.com/AdvancedReact/hero2.jpg"}
         />
       </Col>
     </Row>
   );
-}
+};
 
-export default SignInForm;
+export default SignUpForm;
